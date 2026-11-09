@@ -1,0 +1,52 @@
+{
+  "name": "Kotlin / Android",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "JAVA_HOME": "/opt/java/openjdk",
+    "ANDROID_HOME": "/home/vscode/android-sdk",
+    "ANDROID_SDK_ROOT": "/home/vscode/android-sdk",
+    "GRADLE_USER_HOME": "/home/vscode/.gradle"
+  },
+  "remoteEnv": {
+    "PATH": "/opt/java/openjdk/bin:/home/vscode/.local/bin:/home/vscode/.opencode/bin:/home/vscode/android-sdk/cmdline-tools/latest/bin:/home/vscode/android-sdk/platform-tools:/home/vscode/android-sdk/emulator:${containerEnv:PATH}"
+  },
+  "forwardPorts": [8080, 5037, 5555],
+  "portsAttributes": {
+    "8080": {
+      "label": "Android app / API",
+      "onAutoForward": "notify"
+    },
+    "5037": {
+      "label": "ADB server",
+      "onAutoForward": "silent"
+    },
+    "5555": {
+      "label": "ADB device",
+      "onAutoForward": "silent"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh kotlin-android",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "fwcd.kotlin",
+        "vscjava.vscode-gradle",
+        "redhat.java",
+        "editorconfig.editorconfig"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "files.eol": "\n",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "java.configuration.runtimes": [
+          {
+            "name": "JavaSE-21",
+            "path": "/opt/java/openjdk",
+            "default": true
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+keystore.properties
+secrets.properties
+local.properties
+.npmrc
+!.npmrc.example
+.netrc
+.pypirc
+auth.json
+credentials.json
+
+# OpenCode local state (never commit provider credentials)
+.opencode/cache/
+.opencode/auth.json
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+dist-ssr/
+coverage/
+.vite/
+.next/
+.nuxt/
+.cache/
+
+# Java, Kotlin, Gradle, Android
+.gradle/
+build/
+out/
+*.class
+*.apk
+*.aab
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Editors and OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/*.log
+
+# Local logs and temporary files
+*.log
+tmp/
+.tmp/

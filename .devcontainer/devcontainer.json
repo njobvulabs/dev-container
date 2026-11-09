@@ -1,0 +1,23 @@
+{
+  "name": "Cloud Dev Templates (general Linux)",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "remoteUser": "vscode",
+  "remoteEnv": {
+    "PATH": "/home/vscode/.local/bin:/home/vscode/.opencode/bin:${containerEnv:PATH}"
+  },
+  "forwardPorts": [3000, 8000, 8080],
+  "postCreateCommand": "bash scripts/post-create.sh general-linux",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "editorconfig.editorconfig",
+        "timonwong.shellcheck"
+      ],
+      "settings": {
+        "files.eol": "\n",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true
+      }
+    }
+  }
+}
