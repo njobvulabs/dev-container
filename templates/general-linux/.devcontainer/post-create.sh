@@ -22,6 +22,7 @@ case "$profile" in
   fullstack)
     bash "$SCRIPT_DIR/install-node.sh"
     bash "$SCRIPT_DIR/install-java.sh"
+    ensure_packages postgresql-client redis-tools sqlite3
     bash "$SCRIPT_DIR/install-opencode.sh"
     ;;
   general-linux)
