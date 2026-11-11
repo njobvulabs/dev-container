@@ -14,7 +14,7 @@ Use the matching profile: `react`, `kotlin-android`, `fullstack`, or `general-li
 
 Common causes:
 
-- A network or proxy blocks `nodejs.org`, `services.gradle.org`, `dl.google.com`, or `opencode.ai`.
+- A network or proxy blocks the Ubuntu package mirrors, `nodejs.org`, `services.gradle.org`, `dl.google.com`, or `opencode.ai`.
 - The repository root does not contain the `.devcontainer` directory.
 - Only `devcontainer.json` was copied, without the installer scripts.
 - The Codespace ran out of disk during the Android SDK download.
@@ -26,7 +26,7 @@ The Node.js, Gradle, and Android installers verify downloads. A proxy, mirror, o
 - Check outbound network access.
 - Retry the setup; temporary network failures are common.
 - Do not bypass checksum verification.
-- If you intentionally change an Android tools version, update the pinned SHA-256 in `install-android-sdk.sh`.
+- If you intentionally change an Android tools version, update the pinned SHA-256 in `scripts/versions.env`.
 
 ## `node`, `gradle`, or `opencode` is not found
 
@@ -81,6 +81,8 @@ If `postCreateCommand` reruns the installer every time, verify that the installe
 /home/vscode/.opencode/bin/opencode --version
 ```
 
+If the OpenCode installer download fails or a checksum you configured does not match, clear `OPENCODE_INSTALL_SHA256` or update it to the hash of the current official installer.
+
 ## Android SDK or license errors
 
 Check the SDK:
@@ -97,7 +99,7 @@ If licenses are missing, rerun the profile setup:
 bash .devcontainer/post-create.sh kotlin-android
 ```
 
-If you change the platform or build-tools version, update the variables in `install-android-sdk.sh` and rerun setup. Verify the versions exist for the SDK channel.
+If you change the platform or build-tools version, update the variables in `scripts/versions.env` and rerun setup. Verify the versions exist for the SDK channel.
 
 ## Android Gradle build fails
 

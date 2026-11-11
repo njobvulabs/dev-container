@@ -10,9 +10,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -25,8 +30,11 @@ jobs:
       - name: Validate repository structure and JSON
         run: ./scripts/validate-repo.sh
 
+      - name: Run repository helper tests
+        run: ./tests/run-tests.sh
+
       - name: ShellCheck scripts
-        run: shellcheck -x scripts/*.sh templates/*/.devcontainer/*.sh
+        run: shellcheck -x scripts/*.sh templates/*/.devcontainer/*.sh tests/*.sh
 
       - name: Lint GitHub Actions workflows
         uses: docker://rhysd/actionlint:1.7.7

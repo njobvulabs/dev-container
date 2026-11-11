@@ -6,7 +6,7 @@ Ubuntu 24.04 development container with a practical command-line toolset and Nod
 
 - Node.js `26.13.0` with npm, npx, and corepack when shipped by Node.
 - OpenCode `2.2.6` installed for the `vscode` user.
-- Git, OpenSSH, build-essential, Python 3, jq, ripgrep, fd, tree, tmux, htop, and common editors.
+- Common CLI tools: Git, OpenSSH, build-essential, Python 3, jq, ripgrep, fd, tree, tmux, htop, vim, nano, and ShellCheck.
 - VS Code EditorConfig and ShellCheck extensions.
 - Forwarded ports `3000`, `8000`, and `8080`.
 

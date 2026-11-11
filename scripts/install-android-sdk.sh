@@ -6,10 +6,10 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/common.sh"
 
-ANDROID_CMDLINE_TOOLS_VERSION=${ANDROID_CMDLINE_TOOLS_VERSION:-15859902}
-ANDROID_CMDLINE_TOOLS_SHA256=${ANDROID_CMDLINE_TOOLS_SHA256:-4e4c464f145a7512b57d088ac6c278c03c9eea610886b35a5e0804e74eedf583}
-ANDROID_PLATFORM=${ANDROID_PLATFORM:-android-37.0}
-ANDROID_BUILD_TOOLS=${ANDROID_BUILD_TOOLS:-36.0.0}
+: "${ANDROID_CMDLINE_TOOLS_VERSION:?ANDROID_CMDLINE_TOOLS_VERSION is not set; ensure scripts/versions.env is present.}"
+: "${ANDROID_CMDLINE_TOOLS_SHA256:?ANDROID_CMDLINE_TOOLS_SHA256 is not set; ensure scripts/versions.env is present.}"
+: "${ANDROID_PLATFORM:?ANDROID_PLATFORM is not set; ensure scripts/versions.env is present.}"
+: "${ANDROID_BUILD_TOOLS:?ANDROID_BUILD_TOOLS is not set; ensure scripts/versions.env is present.}"
 ANDROID_CMDLINE_TOOLS_URL=${ANDROID_CMDLINE_TOOLS_URL:-https://dl.google.com/android/repository}
 FORCE=${FORCE:-false}
 
@@ -77,26 +77,20 @@ sdkmanager="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
 [[ -w "$ANDROID_SDK_ROOT" ]] || die "Android SDK root is not writable: $ANDROID_SDK_ROOT"
 
 log "Accepting Android SDK licenses."
+# sdkmanager exits after reading the licenses it needs, which sends SIGPIPE to
+# `yes`. Disable pipefail only for that expected signal, then check the
+# sdkmanager exit status explicitly.
 set +o pipefail
-if is_root; then
-  yes | "$sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" --licenses >/dev/null 2>&1 || true
-else
-  yes | "$sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" --licenses >/dev/null 2>&1 || true
-fi
+yes | "$sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" --licenses >/dev/null 2>&1
+license_status=${PIPESTATUS[1]}
 set -o pipefail
+(( license_status == 0 )) || die "Android SDK license acceptance failed (exit $license_status)."
 
 log "Installing platform-tools, $ANDROID_PLATFORM, and build-tools $ANDROID_BUILD_TOOLS."
-if is_root; then
-  "$sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" \
-    "platform-tools" \
-    "platforms;$ANDROID_PLATFORM" \
-    "build-tools;$ANDROID_BUILD_TOOLS"
-else
-  "$sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" \
-    "platform-tools" \
-    "platforms;$ANDROID_PLATFORM" \
-    "build-tools;$ANDROID_BUILD_TOOLS"
-fi
+"$sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" \
+  "platform-tools" \
+  "platforms;$ANDROID_PLATFORM" \
+  "build-tools;$ANDROID_BUILD_TOOLS"
 
 [[ -d "$ANDROID_SDK_ROOT/platforms/$ANDROID_PLATFORM" ]] || \
   die "Android platform $ANDROID_PLATFORM was not installed."

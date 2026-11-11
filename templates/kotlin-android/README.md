@@ -64,6 +64,7 @@ Licenses are accepted by `install-android-sdk.sh` during post-create setup. If y
 
 ## Notes
 
+- The template requests at least 2 CPUs, 8 GB of memory, and 32 GB of storage via `hostRequirements`; choose a larger machine type if builds are slow.
 - The Android SDK download is large; the first Codespace setup takes longer than the other templates.
 - The container does not include Android Studio. Use the Android Gradle Plugin and command-line tools.
 - Keep signing keys and `keystore.properties` outside the repository. See [Security](../../docs/security.md).

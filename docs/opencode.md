@@ -4,10 +4,18 @@ OpenCode is included in every template so an interactive coding agent is availab
 
 ## Installation details
 
-- Version: `2.2.6` by default.
+- Version: `2.2.6` by default, set in `scripts/versions.env` as `OPENCODE_VERSION`.
 - Location: `/home/vscode/.opencode/bin/opencode`.
 - Installer: official script at `https://opencode.ai/v2/install`.
 - Template behavior: `postCreateCommand` runs `post-create.sh`, which calls `install-opencode.sh` after installing the template toolchain.
+
+The repository's installer downloads the official installer to a temporary file and only then executes it. Set `OPENCODE_INSTALL_SHA256` to verify the downloaded script before it runs:
+
+```bash
+OPENCODE_INSTALL_SHA256=<sha256-of-installer> ./scripts/install-opencode.sh
+```
+
+Without that variable the install still works, but the installer script itself is not checksum-verified.
 
 The installer is idempotent. If the pinned version is already present, it verifies the binary and exits without downloading it again.
 
@@ -25,7 +33,7 @@ OPENCODE_VERSION=2.2.6 ./scripts/install-opencode.sh
 ./scripts/install-opencode.sh --force
 ```
 
-It passes `--no-modify-path` to the upstream installer and updates shell startup files itself, so repeated runs do not add duplicate entries.
+It passes `--no-modify-path` to the upstream installer and updates shell startup files itself, so repeated runs do not add duplicate entries. The downloaded installer is executed as a file rather than piped directly from `curl`.
 
 ## Start OpenCode
 
@@ -64,7 +72,7 @@ The root `.gitignore` excludes common local auth and environment files, but igno
 
 ## Updating OpenCode
 
-In this repository, change `OPENCODE_VERSION` in `scripts/install-opencode.sh`, update the README version table, then synchronize the templates:
+In this repository, change `OPENCODE_VERSION` in `scripts/versions.env`, update the README version table, then synchronize the templates:
 
 ```bash
 ./scripts/sync-template-assets.sh
@@ -94,7 +102,7 @@ OpenCode needs outbound network access to its installer and to your model provid
 - Installer runs again on every start: ensure the requested version matches the installed version.
 - Authentication fails: re-run `/connect` and verify provider access and network connectivity.
 - Model list is empty: complete provider authentication first, then use `/models`.
-- Unexpected version: run `opencode --version` and compare it with `OPENCODE_VERSION` in `install-opencode.sh`.
+- Unexpected version: run `opencode --version` and compare it with `OPENCODE_VERSION` in `scripts/versions.env`.
 
 ## Security
 

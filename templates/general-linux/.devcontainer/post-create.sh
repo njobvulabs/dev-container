@@ -10,6 +10,7 @@ profile=${1:-}
 
 case "$profile" in
   react)
+    bash "$SCRIPT_DIR/install-common-tools.sh"
     bash "$SCRIPT_DIR/install-node.sh"
     bash "$SCRIPT_DIR/install-opencode.sh"
     ;;
@@ -20,12 +21,14 @@ case "$profile" in
     bash "$SCRIPT_DIR/install-opencode.sh"
     ;;
   fullstack)
+    bash "$SCRIPT_DIR/install-common-tools.sh"
     bash "$SCRIPT_DIR/install-node.sh"
     bash "$SCRIPT_DIR/install-java.sh"
-    ensure_packages postgresql-client redis-tools sqlite3
+    bash "$SCRIPT_DIR/install-db-clients.sh"
     bash "$SCRIPT_DIR/install-opencode.sh"
     ;;
   general-linux)
+    bash "$SCRIPT_DIR/install-common-tools.sh"
     bash "$SCRIPT_DIR/install-node.sh"
     bash "$SCRIPT_DIR/install-opencode.sh"
     ;;

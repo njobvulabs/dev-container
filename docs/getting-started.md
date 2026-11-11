@@ -6,7 +6,7 @@ These templates are designed for GitHub Codespaces. They use a standard Ubuntu 2
 
 - A GitHub account with Codespaces access.
 - A repository containing a `.devcontainer` directory at its root.
-- Outbound network access from the Codespace to GitHub, `nodejs.org`, `services.gradle.org`, `dl.google.com`, and `opencode.ai`.
+- Outbound network access from the Codespace to GitHub, the Ubuntu package mirrors used by the base image, `nodejs.org`, `services.gradle.org`, `dl.google.com`, and `opencode.ai`.
 
 VS Code with the Dev Containers extension is optional if you want to run the same configuration locally. Local use still requires Docker.
 
@@ -60,10 +60,10 @@ The profile script installs the required tools:
 
 | Profile | Installs |
 | --- | --- |
-| `react` | Node.js and OpenCode |
+| `react` | Common CLI tools, Node.js, and OpenCode |
 | `kotlin-android` | OpenJDK, Gradle, Android SDK, and OpenCode |
-| `fullstack` | Node.js, OpenJDK, and OpenCode |
-| `general-linux` | Node.js and OpenCode |
+| `fullstack` | Common CLI tools, Node.js, OpenJDK, database clients, and OpenCode |
+| `general-linux` | Common CLI tools, Node.js, and OpenCode |
 
 The installers are idempotent. Re-running the post-create command is safe.
 
@@ -74,6 +74,8 @@ React or general Linux:
 ```bash
 node --version
 npm --version
+rg --version
+jq --version
 opencode --version
 ```
 
@@ -93,6 +95,8 @@ Full-stack:
 node --version
 java -version
 psql --version
+redis-cli --version
+sqlite3 --version
 opencode --version
 ```
 
@@ -120,7 +124,7 @@ bash .devcontainer/post-create.sh kotlin-android
 
 ## Update template scripts
 
-In this repository, edit the canonical files in `scripts/`, then synchronize the copies:
+In this repository, tool versions live in `scripts/versions.env`. Edit the canonical scripts there, then synchronize the copies:
 
 ```bash
 ./scripts/sync-template-assets.sh

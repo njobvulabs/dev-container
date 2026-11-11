@@ -6,7 +6,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/common.sh"
 
-GRADLE_VERSION=${GRADLE_VERSION:-9.6.0}
+: "${GRADLE_VERSION:?GRADLE_VERSION is not set; ensure scripts/versions.env is present.}"
 GRADLE_DIST_URL=${GRADLE_DIST_URL:-https://services.gradle.org/distributions}
 FORCE=${FORCE:-false}
 

@@ -12,6 +12,11 @@
     "PATH": "/opt/java/openjdk/bin:/home/vscode/.local/bin:/home/vscode/.opencode/bin:/home/vscode/android-sdk/cmdline-tools/latest/bin:/home/vscode/android-sdk/platform-tools:/home/vscode/android-sdk/emulator:${containerEnv:PATH}"
   },
   "forwardPorts": [8080, 5037, 5555],
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
   "portsAttributes": {
     "8080": {
       "label": "Android app / API",

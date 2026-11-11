@@ -5,6 +5,13 @@
 
 set -Eeuo pipefail
 
+# Load the canonical pinned versions. Callers set SCRIPT_DIR before sourcing.
+if [[ -n ${SCRIPT_DIR:-} && -f "$SCRIPT_DIR/versions.env" ]]; then
+  # shellcheck source=versions.env
+  # shellcheck disable=SC1091
+  source "$SCRIPT_DIR/versions.env"
+fi
+
 if [[ -t 1 ]]; then
   C_RESET='\033[0m'
   C_INFO='\033[0;36m'
@@ -79,7 +86,14 @@ apt_install() {
     sudo_prefix=(sudo -E)
   fi
 
-  "${sudo_prefix[@]}" apt-get update
+  # Refresh package lists once per container. Re-running apt-get update for
+  # every installer wastes time during post-create.
+  local marker="${TMPDIR:-/tmp}/cloud-dev-templates-apt-update-${EUID:-$(id -u)}"
+  if [[ ! -f "$marker" ]]; then
+    "${sudo_prefix[@]}" apt-get update
+    touch "$marker"
+  fi
+
   "${sudo_prefix[@]}" env DEBIAN_FRONTEND=noninteractive \
     apt-get install -y --no-install-recommends "$@"
 }
@@ -112,27 +126,19 @@ detect_arch() {
   esac
 }
 
-retry() {
-  local attempts=$1
-  shift
-  local count=1
-
-  until "$@"; do
-    if (( count >= attempts )); then
-      die "Command failed after ${attempts} attempts: $*"
-    fi
-    warn "Attempt ${count}/${attempts} failed; retrying: $*"
-    count=$((count + 1))
-    sleep $((count * 2))
-  done
-}
-
 download() {
   local url=$1
   local destination=$2
+  local partial="$destination.part"
+
   require_cmd curl
-  curl -fL --retry 3 --retry-delay 2 --connect-timeout 20 \
-    -o "$destination" "$url"
+  rm -f "$partial"
+  if ! curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
+    --connect-timeout 20 -o "$partial" "$url"; then
+    rm -f "$partial"
+    die "Failed to download $url"
+  fi
+  mv -f "$partial" "$destination"
 }
 
 sha256_verify() {

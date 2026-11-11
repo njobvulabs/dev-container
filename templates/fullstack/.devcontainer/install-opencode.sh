@@ -6,16 +6,18 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/common.sh"
 
-OPENCODE_VERSION=${OPENCODE_VERSION:-2.2.6}
+: "${OPENCODE_VERSION:?OPENCODE_VERSION is not set; ensure scripts/versions.env is present.}"
 OPENCODE_INSTALL_URL=${OPENCODE_INSTALL_URL:-https://opencode.ai/v2/install}
 OPENCODE_INSTALL_DIR=${OPENCODE_INSTALL_DIR:-$HOME/.opencode/bin}
+OPENCODE_INSTALL_SHA256=${OPENCODE_INSTALL_SHA256:-}
 FORCE=${FORCE:-false}
+export OPENCODE_INSTALL_DIR
 
 for argument in "$@"; do
   case "$argument" in
     --force) FORCE=true ;;
     --help)
-      printf 'Usage: %s [--force]\n\nEnvironment variables:\n  OPENCODE_VERSION  Version to install (default: %s)\n' \
+      printf 'Usage: %s [--force]\n\nEnvironment variables:\n  OPENCODE_VERSION         Version to install (default: %s)\n  OPENCODE_INSTALL_SHA256  Expected SHA-256 of the downloaded installer\n' \
         "$0" "$OPENCODE_VERSION"
       exit 0
       ;;
@@ -49,14 +51,34 @@ fi
 
 ensure_packages ca-certificates curl
 require_cmd curl bash
+if [[ -n "$OPENCODE_INSTALL_SHA256" ]]; then
+  require_cmd sha256sum
+fi
 
 installer_args=(--no-modify-path)
 if [[ "$OPENCODE_VERSION" != "latest" ]]; then
   installer_args+=(--version "$OPENCODE_VERSION")
 fi
 
+temporary_dir=$(mktemp -d)
+trap 'cleanup_dir "$temporary_dir"' EXIT
+installer="$temporary_dir/opencode-install.sh"
+
+log "Downloading the OpenCode installer."
+download "$OPENCODE_INSTALL_URL" "$installer"
+[[ -s "$installer" ]] || die "OpenCode installer download was empty: $OPENCODE_INSTALL_URL"
+
+if [[ -n "$OPENCODE_INSTALL_SHA256" ]]; then
+  sha256_verify "$installer" "$OPENCODE_INSTALL_SHA256"
+else
+  warn "OPENCODE_INSTALL_SHA256 is not set; running the downloaded installer without checksum verification."
+fi
+
 log "Installing OpenCode $OPENCODE_VERSION."
-curl -fsSL "$OPENCODE_INSTALL_URL" | bash -s -- "${installer_args[@]}"
+bash "$installer" "${installer_args[@]}"
+
+cleanup_dir "$temporary_dir"
+trap - EXIT
 
 installed_binary=$(find_opencode || true)
 [[ -n "$installed_binary" ]] || die "OpenCode installer completed, but the binary was not found."

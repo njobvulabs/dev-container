@@ -8,7 +8,7 @@ Ubuntu 24.04 development container for a React/Node.js frontend and a Java backe
 - OpenJDK `21` with `JAVA_HOME=/opt/java/openjdk`.
 - OpenCode `2.2.6` installed for the `vscode` user.
 - PostgreSQL, Redis, and SQLite client tools.
-- Git, OpenSSH, build-essential, Python 3, ripgrep, fd, jq, and common editors.
+- Common CLI tools: Git, OpenSSH, build-essential, Python 3, jq, ripgrep, fd, tree, tmux, htop, vim, nano, and ShellCheck.
 - VS Code ESLint, Prettier, Java, Gradle, Spring Boot, and EditorConfig extensions.
 - Forwarded ports `3000`, `5173`, `8080`, `5432`, and `6379`.
 

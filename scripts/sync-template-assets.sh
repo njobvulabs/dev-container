@@ -49,16 +49,17 @@ sync_environment() {
   local script
   local destination_dir="$TEMPLATES_DIR/$environment/.devcontainer"
 
-  for script in common.sh post-create.sh install-opencode.sh "$@"; do
-
+  sync_file "$SCRIPTS_DIR/common.sh" "$destination_dir/common.sh" 0755
+  sync_file "$SCRIPTS_DIR/versions.env" "$destination_dir/versions.env" 0644
+  for script in post-create.sh install-opencode.sh "$@"; do
     sync_file "$SCRIPTS_DIR/$script" "$destination_dir/$script" 0755
   done
 }
 
-sync_environment react install-node.sh
+sync_environment react install-common-tools.sh install-node.sh
 sync_environment kotlin-android install-java.sh install-gradle.sh install-android-sdk.sh
-sync_environment fullstack install-node.sh install-java.sh
-sync_environment general-linux install-node.sh
+sync_environment fullstack install-common-tools.sh install-node.sh install-java.sh install-db-clients.sh
+sync_environment general-linux install-common-tools.sh install-node.sh
 
 if [[ "$CHECK_ONLY" == "true" ]]; then
   if (( DRIFT != 0 )); then

@@ -46,9 +46,11 @@ The post-create installers download tools from upstream projects. Where possible
 - Node.js: version-pinned tarball verified against `SHASUMS256.txt`.
 - Gradle: version-pinned distribution verified against the published `.sha256`.
 - Android command-line tools: version-pinned archive verified against a pinned SHA-256 checksum.
-- OpenCode: pinned version installed from the official installer.
+- OpenCode: pinned version; the official installer is downloaded to a temporary file before execution and can be verified with `OPENCODE_INSTALL_SHA256`.
 
 Ubuntu packages come from the distribution repositories and are not individually checksum-pinned in the installer scripts. Rebuild the Codespace regularly to pick up security updates, and review changes to installers before updating versions.
+
+The OpenCode installer has no default pinned hash because the upstream script changes independently of the version argument. Set `OPENCODE_INSTALL_SHA256` in CI or your environment if your policy requires verifying the script itself; otherwise the installer is still downloaded to disk first and executed from there.
 
 ## Base image and updates
 

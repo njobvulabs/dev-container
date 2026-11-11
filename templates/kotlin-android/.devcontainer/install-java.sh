@@ -6,7 +6,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/common.sh"
 
-JAVA_MAJOR=${JAVA_MAJOR:-21}
+: "${JAVA_MAJOR:?JAVA_MAJOR is not set; ensure scripts/versions.env is present.}"
 JAVA_HOME_LINK=${JAVA_HOME_LINK:-/opt/java/openjdk}
 FORCE=${FORCE:-false}
 
@@ -32,7 +32,7 @@ if [[ "$current_major" == "$JAVA_MAJOR" && "$FORCE" != "true" ]]; then
   ok "OpenJDK $JAVA_MAJOR is already installed."
 else
   log "Installing OpenJDK $JAVA_MAJOR JDK (headless)."
-  apt_install "openjdk-${JAVA_MAJOR}-jdk-headless"
+  ensure_packages "openjdk-${JAVA_MAJOR}-jdk-headless"
 fi
 
 require_cmd java javac
@@ -48,6 +48,12 @@ export JAVA_HOME="$JAVA_HOME_LINK"
 export PATH="$JAVA_HOME/bin:$PATH"
 add_path_line "$HOME/.bashrc" "export JAVA_HOME=\"$JAVA_HOME_LINK\""
 add_path_line "$HOME/.bashrc" "export PATH=\"\$JAVA_HOME/bin:\$PATH\""
+add_path_line "$HOME/.profile" "export JAVA_HOME=\"$JAVA_HOME_LINK\""
+add_path_line "$HOME/.profile" "export PATH=\"\$JAVA_HOME/bin:\$PATH\""
+if [[ -f "$HOME/.zshrc" ]]; then
+  add_path_line "$HOME/.zshrc" "export JAVA_HOME=\"$JAVA_HOME_LINK\""
+  add_path_line "$HOME/.zshrc" "export PATH=\"\$JAVA_HOME/bin:\$PATH\""
+fi
 
 hash -r 2>/dev/null || true
 ok "Java: $(java -version 2>&1 | head -n 1)"

@@ -54,10 +54,10 @@ mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
 The base image supplies the `vscode` user, `sudo`, Git, and common utilities. The post-create script adds the selected toolchain:
 
-- `react`: Node.js and OpenCode.
+- `react`: common CLI tools, Node.js, and OpenCode.
 - `kotlin-android`: OpenJDK, Gradle, Android SDK, and OpenCode.
-- `fullstack`: Node.js, OpenJDK, and OpenCode.
-- `general-linux`: Node.js and OpenCode.
+- `fullstack`: common CLI tools, Node.js, OpenJDK, database clients, and OpenCode.
+- `general-linux`: common CLI tools, Node.js, and OpenCode.
 
 The scripts are copied into each template because a Dev Container only sees its `.devcontainer` directory and the workspace.
 
@@ -72,7 +72,7 @@ You can also start from `general-linux` and edit its `post-create.sh`, or add a 
 
 ## Keep template scripts synchronized
 
-In this repository, template scripts are copied from `scripts/`:
+In this repository, template scripts are copied from `scripts/`. Pinned versions live in `scripts/versions.env`:
 
 ```bash
 ./scripts/sync-template-assets.sh

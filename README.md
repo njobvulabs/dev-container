@@ -8,9 +8,9 @@ No custom Docker image is built by this repository. Codespaces uses `mcr.microso
 
 | Template | Toolchain | Typical use |
 | --- | --- | --- |
-| `react` | Node.js 26.13.0, OpenCode 2.2.6 | React, Vite, TypeScript, frontend work |
+| `react` | Node.js 26.13.0, common CLI tools, OpenCode 2.2.6 | React, Vite, TypeScript, frontend work |
 | `kotlin-android` | OpenJDK 21, Gradle 9.6.0, Android SDK, OpenCode | Kotlin and Android app development |
-| `fullstack` | Node.js 26.13.0, OpenJDK 21, database clients, OpenCode | React plus Java backend services |
+| `fullstack` | Node.js 26.13.0, OpenJDK 21, PostgreSQL/Redis/SQLite clients, common CLI tools, OpenCode | React plus Java backend services |
 | `general-linux` | Node.js 26.13.0, common CLI tools, OpenCode | General Linux development and scripting |
 
 The base image provides the `vscode` user (UID/GID 1000) with passwordless `sudo`, matching the default Dev Container and Codespaces user.
@@ -50,10 +50,10 @@ Each `devcontainer.json` uses the Dev Containers Ubuntu 24.04 base image and run
 
 The profile script calls the canonical installers:
 
-- `react`: Node.js, then OpenCode.
+- `react`: common CLI tools, then Node.js, then OpenCode.
 - `kotlin-android`: OpenJDK, Gradle, Android SDK, then OpenCode.
-- `fullstack`: Node.js, OpenJDK, then OpenCode.
-- `general-linux`: Node.js, then OpenCode.
+- `fullstack`: common CLI tools, Node.js, OpenJDK, database clients, then OpenCode.
+- `general-linux`: common CLI tools, then Node.js, then OpenCode.
 
 The scripts are idempotent. Rebuilding a container or rerunning the post-create command skips tools that already match the pinned versions.
 
@@ -82,6 +82,8 @@ For full-stack:
 node --version
 java -version
 psql --version
+redis-cli --version
+sqlite3 --version
 opencode --version
 ```
 
@@ -93,7 +95,7 @@ OpenCode is installed for the `vscode` user at `/home/vscode/.opencode/bin/openc
 opencode
 ```
 
-Use the TUI to authenticate a provider with `/connect`, then select a model with `/models`. Installing OpenCode does not provide model credits; connect a provider you are entitled to use. See [OpenCode](docs/opencode.md) and [Security](docs/security.md).
+Use the TUI to authenticate a provider with `/connect`, then select a model with `/models`. Installing OpenCode does not provide model credits; connect a provider you are entitled to use. The installer is downloaded to a temporary file before it runs; set `OPENCODE_INSTALL_SHA256` to verify it against a hash you trust. See [OpenCode](docs/opencode.md) and [Security](docs/security.md).
 
 ## Repository layout
 
@@ -103,6 +105,7 @@ Use the TUI to authenticate a provider with `/connect`, then select a model with
 ├── .github/workflows/       # Repository validation workflow
 ├── docs/                    # Setup, OpenCode, security, and troubleshooting guides
 ├── scripts/                 # Canonical installers and repository helpers
+├── tests/                   # Helper tests run by CI
 └── templates/               # Copyable Dev Container definitions
     ├── react/
     ├── kotlin-android/
@@ -125,9 +128,10 @@ Validation fails if a template copy drifts from the canonical script.
 
 ```bash
 ./scripts/validate-repo.sh
+./tests/run-tests.sh
 ```
 
-The validator checks required files, JSON syntax, shell syntax, executable bits, workflow names, and synchronization. CI additionally runs ShellCheck and Actionlint.
+The validator checks required files, JSON syntax, shell syntax, executable bits, workflow names, template profile names, documented versions, and synchronization. CI additionally runs ShellCheck and Actionlint. `make validate`, `make test`, and `make shellcheck` wrap the same commands.
 
 ## Pinned versions
 
@@ -142,7 +146,7 @@ The validator checks required files, JSON syntax, shell syntax, executable bits,
 | Android build-tools | `36.0.0` |
 | OpenCode | `2.2.6` |
 
-To update a tool, change the version variable in the relevant script, synchronize the templates, and rebuild the container. The Android toolchain requires Gradle 9.6.0 or newer, JDK 17 or newer, and build-tools 36.0.0 for API 37.
+To update a tool, change the version variable in `scripts/versions.env`, synchronize the templates, update the README tables, and rebuild the container. The Android toolchain requires Gradle 9.6.0 or newer, JDK 17 or newer, and build-tools 36.0.0 for API 37.
 
 ## Documentation
 

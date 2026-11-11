@@ -6,7 +6,7 @@ Ubuntu 24.04 development container for React, Vite, and TypeScript projects.
 
 - Node.js `26.13.0` with npm, npx, and corepack when shipped by Node.
 - OpenCode `2.2.6` installed for the `vscode` user.
-- Git, GitHub CLI prerequisites (git and OpenSSH), build-essential, Python 3, ripgrep, fd, jq, and common editors.
+- Common CLI tools: Git, OpenSSH, build-essential, Python 3, ripgrep, fd, jq, tree, tmux, htop, vim, nano, and ShellCheck.
 - VS Code ESLint, Prettier, Tailwind CSS IntelliSense, Vitest, and EditorConfig extensions.
 - Forwarded ports `3000`, `5173`, and `4173`.
 
