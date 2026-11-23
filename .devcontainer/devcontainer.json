@@ -6,7 +6,8 @@
   },
   "remoteUser": "vscode",
   "hostRequirements": {
-    "cpus": 4
+    "cpus": 4,
+    "memory": "8gb"
   },
   "remoteEnv": {
     "PATH": "/home/vscode/.local/bin:/home/vscode/.opencode/bin:${containerEnv:PATH}"

@@ -71,7 +71,7 @@ Use `/connect` to authenticate a provider and `/models` to select a model. Insta
 - Add tools: edit the `RUN` instruction in `Dockerfile` or add an installer to the folder.
 - Change versions: edit `.devcontainer/versions.env`, then rebuild the container/image.
 - Change ports or editor setup: edit `.devcontainer/devcontainer.json`.
-- The configuration requests at least 4 CPUs via `hostRequirements`.
+- The configuration requests at least 4 CPUs and 8 GB of RAM via `hostRequirements`, so Codespaces selects a suitably sized machine.
 
 Keep secrets out of the container configuration and out of version control.
 
