@@ -50,6 +50,11 @@ assert_eq "21" "$(version_major "21.0.1")" "version_major handles modern JDKs"
 assert_eq "8" "$(version_major "1.8.0_402")" "version_major handles legacy 1.x versions"
 assert_nonempty "${NODE_VERSION:-}" "versions.env defines NODE_VERSION"
 assert_nonempty "${OPENCODE_VERSION:-}" "versions.env defines OPENCODE_VERSION"
+assert_eq "" "$(DEV_USER='' dev_user_home)" "empty DEV_USER falls back to current HOME"
+
+if id vscode >/dev/null 2>&1; then
+  assert_eq "/home/vscode" "$(dev_user_home)" "dev_user_home resolves the vscode account"
+fi
 
 expected_arch=""
 case "$(uname -m)" in
@@ -103,7 +108,7 @@ fake_hash=$(sha256sum "$fake_installer" | cut -d' ' -f1)
 fake_home="$temporary_dir/opencode-home"
 fake_bin="$temporary_dir/opencode-bin"
 
-if HOME="$fake_home" OPENCODE_INSTALL_DIR="$fake_bin" \
+if HOME="$fake_home" DEV_USER="" OPENCODE_INSTALL_DIR="$fake_bin" \
   OPENCODE_INSTALL_URL="file://$fake_installer" \
   OPENCODE_INSTALL_SHA256="$fake_hash" OPENCODE_VERSION=9.9.9 \
   "$SCRIPT_DIR/install-opencode.sh" >/dev/null 2>&1; then
@@ -115,7 +120,7 @@ assert_eq "installed" "$install_state" "install-opencode.sh installs with a veri
 assert_eq "opencode v9.9.9" "$("$fake_bin/opencode" --version)" \
   "verified OpenCode install reports the pinned version"
 
-if HOME="$fake_home" OPENCODE_INSTALL_DIR="$fake_bin" \
+if HOME="$fake_home" DEV_USER="" OPENCODE_INSTALL_DIR="$fake_bin" \
   OPENCODE_INSTALL_URL="file://$fake_installer" \
   OPENCODE_INSTALL_SHA256=deadbeef OPENCODE_VERSION=9.9.9 \
   "$SCRIPT_DIR/install-opencode.sh" --force >/dev/null 2>&1; then

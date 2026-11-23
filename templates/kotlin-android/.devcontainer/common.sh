@@ -68,6 +68,15 @@ is_root() {
   [[ ${EUID:-$(id -u)} -eq 0 ]]
 }
 
+# Resolve the home directory of the Dev Container user (vscode by default).
+# Set DEV_USER="" to use the current process's HOME instead.
+dev_user_home() {
+  local user=${DEV_USER-vscode}
+  if [[ -n "$user" ]] && have id && have getent && id "$user" >/dev/null 2>&1; then
+    getent passwd "$user" | cut -d: -f6
+  fi
+}
+
 run_root() {
   if is_root; then
     "$@"

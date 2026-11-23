@@ -7,6 +7,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "$SCRIPT_DIR/common.sh"
 
 profile=${1:-}
+log "post-create: user=$(id -un), HOME=$HOME, profile=${profile:-none}"
 
 case "$profile" in
   react)

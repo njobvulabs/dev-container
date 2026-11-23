@@ -8,7 +8,9 @@ source "$SCRIPT_DIR/common.sh"
 
 : "${OPENCODE_VERSION:?OPENCODE_VERSION is not set; ensure scripts/versions.env is present.}"
 OPENCODE_INSTALL_URL=${OPENCODE_INSTALL_URL:-https://opencode.ai/v2/install}
-OPENCODE_INSTALL_DIR=${OPENCODE_INSTALL_DIR:-$HOME/.opencode/bin}
+target_home=$(dev_user_home)
+[[ -n "$target_home" ]] || target_home=$HOME
+OPENCODE_INSTALL_DIR=${OPENCODE_INSTALL_DIR:-$target_home/.opencode/bin}
 OPENCODE_INSTALL_SHA256=${OPENCODE_INSTALL_SHA256:-}
 FORCE=${FORCE:-false}
 export OPENCODE_INSTALL_DIR
@@ -33,16 +35,22 @@ find_opencode() {
   fi
 }
 
+ensure_target_path() {
+  HOME="$target_home" ensure_user_path "$1"
+}
+
+log "OpenCode target home: $target_home; install dir: $OPENCODE_INSTALL_DIR"
+
 installed_binary=$(find_opencode || true)
 if [[ -n "$installed_binary" ]]; then
   installed_version=$("$installed_binary" --version 2>/dev/null | tail -n 1 | sed -E 's/^.*[[:space:]]//; s/^v//' || true)
   if [[ "$FORCE" != "true" && "$OPENCODE_VERSION" != "latest" && "$installed_version" == "$OPENCODE_VERSION" ]]; then
-    ensure_user_path "$(dirname "$installed_binary")"
+    ensure_target_path "$(dirname "$installed_binary")"
     ok "OpenCode $installed_version is already installed."
     exit 0
   fi
   if [[ "$FORCE" != "true" && "$OPENCODE_VERSION" == "latest" ]]; then
-    ensure_user_path "$(dirname "$installed_binary")"
+    ensure_target_path "$(dirname "$installed_binary")"
     ok "OpenCode $installed_version is already installed (latest requested)."
     exit 0
   fi
@@ -75,7 +83,12 @@ else
 fi
 
 log "Installing OpenCode $OPENCODE_VERSION."
-bash "$installer" "${installer_args[@]}"
+HOME="$target_home" bash "$installer" "${installer_args[@]}"
+
+if is_root && [[ -n ${DEV_USER-vscode} ]] && id "${DEV_USER-vscode}" >/dev/null 2>&1; then
+  dev_group=$(id -gn "${DEV_USER-vscode}")
+  chown -R "${DEV_USER-vscode}:$dev_group" "$OPENCODE_INSTALL_DIR"
+fi
 
 cleanup_dir "$temporary_dir"
 trap - EXIT
@@ -83,7 +96,7 @@ trap - EXIT
 installed_binary=$(find_opencode || true)
 [[ -n "$installed_binary" ]] || die "OpenCode installer completed, but the binary was not found."
 
-ensure_user_path "$(dirname "$installed_binary")"
+ensure_target_path "$(dirname "$installed_binary")"
 
 installed_version=$("$installed_binary" --version 2>/dev/null | tail -n 1 | sed -E 's/^.*[[:space:]]//; s/^v//' || true)
 if [[ "$OPENCODE_VERSION" != "latest" && "$installed_version" != "$OPENCODE_VERSION" ]]; then
