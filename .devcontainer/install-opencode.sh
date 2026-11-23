@@ -6,7 +6,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/common.sh"
 
-: "${OPENCODE_VERSION:?OPENCODE_VERSION is not set; ensure scripts/versions.env is present.}"
+: "${OPENCODE_VERSION:?OPENCODE_VERSION is not set; ensure versions.env is present beside this script.}"
 OPENCODE_INSTALL_URL=${OPENCODE_INSTALL_URL:-https://opencode.ai/v2/install}
 target_home=$(dev_user_home)
 [[ -n "$target_home" ]] || target_home=$HOME

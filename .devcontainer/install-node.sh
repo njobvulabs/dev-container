@@ -6,7 +6,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/common.sh"
 
-: "${NODE_VERSION:?NODE_VERSION is not set; ensure scripts/versions.env is present.}"
+: "${NODE_VERSION:?NODE_VERSION is not set; ensure versions.env is present beside this script.}"
 NODE_DIST_URL=${NODE_DIST_URL:-https://nodejs.org/dist}
 FORCE=${FORCE:-false}
 
