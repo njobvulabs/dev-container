@@ -2,6 +2,9 @@
   "name": "Cloud Dev Templates (general Linux)",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "remoteUser": "vscode",
+  "hostRequirements": {
+    "cpus": 4
+  },
   "remoteEnv": {
     "PATH": "/home/vscode/.local/bin:/home/vscode/.opencode/bin:${containerEnv:PATH}"
   },
