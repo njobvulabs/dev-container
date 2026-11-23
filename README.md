@@ -15,6 +15,8 @@ No custom Docker image is built by this repository. Codespaces uses `mcr.microso
 
 The base image provides the `vscode` user (UID/GID 1000) with passwordless `sudo`, matching the default Dev Container and Codespaces user.
 
+The `kotlin-android` template requests at least 4 CPUs, 8 GB of memory, and 32 GB of storage through `hostRequirements`; this repository's root dev container requests 4 CPUs. Choose a larger Codespaces machine type for Android builds.
+
 ## Quick start
 
 ### Use a template in a new project
@@ -42,13 +44,19 @@ Then rebuild the container or create a new Codespace. For a separate project, co
 
 ## How installation works
 
-Each `devcontainer.json` uses the Dev Containers Ubuntu 24.04 base image and runs:
+Every `devcontainer.json` uses the Dev Containers Ubuntu 24.04 base image. The copyable templates run the scripts bundled in their own `.devcontainer` directory:
 
 ```json
 "postCreateCommand": "bash .devcontainer/post-create.sh react"
 ```
 
-The profile script calls the canonical installers:
+The root `.devcontainer` in this repository calls the canonical scripts in `scripts/` directly, because they are available in this workspace:
+
+```json
+"postCreateCommand": "bash scripts/post-create.sh general-linux"
+```
+
+Either way, the profile script calls the installers:
 
 - `react`: common CLI tools, then Node.js, then OpenCode.
 - `kotlin-android`: OpenJDK, Gradle, Android SDK, then OpenCode.
@@ -89,7 +97,7 @@ opencode --version
 
 ## OpenCode
 
-OpenCode is installed for the `vscode` user at `/home/vscode/.opencode/bin/opencode`. Start it with:
+OpenCode is installed for the `vscode` user at `/home/vscode/.opencode/bin/opencode`. During post-create the installer targets the dev user's home even when the command runs as root; `DEV_USER` selects that account, and `DEV_USER=""` uses the current process's `HOME`. Start it with:
 
 ```bash
 opencode
@@ -131,7 +139,7 @@ Validation fails if a template copy drifts from the canonical script.
 ./tests/run-tests.sh
 ```
 
-The validator checks required files, JSON syntax, shell syntax, executable bits, workflow names, template profile names, documented versions, and synchronization. CI additionally runs ShellCheck and Actionlint. `make validate`, `make test`, and `make shellcheck` wrap the same commands.
+The validator checks required files, JSON syntax, shell syntax, executable bits, workflow names, template profile names, documented versions, and synchronization. CI additionally runs ShellCheck and Actionlint. `make validate`, `make test`, `make shellcheck`, and `make sync` wrap the same commands.
 
 ## Pinned versions
 
@@ -150,6 +158,7 @@ To update a tool, change the version variable in `scripts/versions.env`, synchro
 
 ## Documentation
 
+- [Templates](templates/README.md)
 - [Getting started](docs/getting-started.md)
 - [Creating new projects](docs/creating-new-projects.md)
 - [OpenCode](docs/opencode.md)
