@@ -6,13 +6,20 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 COPY . /tmp/cloud-dev-setup/
 RUN chmod +x /tmp/cloud-dev-setup/*.sh
 
-# Expose user-level tools to every shell in the image, not only to terminals
-# that pick up the devcontainer.json remoteEnv setting.
-ENV PATH="/home/vscode/.local/bin:/home/vscode/.opencode/bin:${PATH}"
+# Pin the tool locations for both the build and the running container.
+ENV JAVA_HOME=/opt/java/openjdk \
+    ANDROID_HOME=/home/vscode/android-sdk \
+    ANDROID_SDK_ROOT=/home/vscode/android-sdk \
+    GRADLE_USER_HOME=/home/vscode/.gradle
+ENV PATH="/opt/java/openjdk/bin:/home/vscode/.local/bin:/home/vscode/.opencode/bin:/home/vscode/android-sdk/cmdline-tools/latest/bin:/home/vscode/android-sdk/platform-tools:/home/vscode/android-sdk/emulator:${PATH}"
 
-# Change the profile or add installers here to bake different tools into the image.
-RUN bash /tmp/cloud-dev-setup/post-create.sh general-linux \
+# Change the installer list in post-create.sh to bake different tools into the image.
+RUN bash /tmp/cloud-dev-setup/post-create.sh all \
  && node --version \
+ && java -version \
+ && gradle --version \
+ && sdkmanager --version \
+ && adb version \
  && jq --version \
  && opencode --version \
  && rm -rf /tmp/cloud-dev-setup \

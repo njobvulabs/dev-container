@@ -1,19 +1,25 @@
 {
-  "name": "Cloud Dev Templates (general Linux)",
+  "name": "Cloud Dev Container (full toolchain)",
   "build": {
     "dockerfile": "Dockerfile",
     "context": "."
   },
   "remoteUser": "vscode",
+  "containerEnv": {
+    "JAVA_HOME": "/opt/java/openjdk",
+    "ANDROID_HOME": "/home/vscode/android-sdk",
+    "ANDROID_SDK_ROOT": "/home/vscode/android-sdk",
+    "GRADLE_USER_HOME": "/home/vscode/.gradle"
+  },
   "hostRequirements": {
     "cpus": 4,
     "memory": "16gb",
     "storage": "32gb"
   },
   "remoteEnv": {
-    "PATH": "/home/vscode/.local/bin:/home/vscode/.opencode/bin:${containerEnv:PATH}"
+    "PATH": "/opt/java/openjdk/bin:/home/vscode/.local/bin:/home/vscode/.opencode/bin:/home/vscode/android-sdk/cmdline-tools/latest/bin:/home/vscode/android-sdk/platform-tools:/home/vscode/android-sdk/emulator:${containerEnv:PATH}"
   },
-  "forwardPorts": [3000, 8000, 8080],
+  "forwardPorts": [3000, 8000, 8080, 5037, 5555],
   "portsAttributes": {
     "3000": {
       "label": "Web app",
@@ -26,18 +32,36 @@
     "8080": {
       "label": "HTTP server",
       "onAutoForward": "notify"
+    },
+    "5037": {
+      "label": "ADB server",
+      "onAutoForward": "silent"
+    },
+    "5555": {
+      "label": "ADB device",
+      "onAutoForward": "silent"
     }
   },
   "customizations": {
     "vscode": {
       "extensions": [
         "editorconfig.editorconfig",
-        "timonwong.shellcheck"
+        "timonwong.shellcheck",
+        "redhat.java",
+        "vscjava.vscode-gradle",
+        "fwcd.kotlin"
       ],
       "settings": {
         "files.eol": "\n",
         "terminal.integrated.defaultProfile.linux": "bash",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "java.configuration.runtimes": [
+          {
+            "name": "JavaSE-21",
+            "path": "/opt/java/openjdk",
+            "default": true
+          }
+        ]
       }
     }
   }

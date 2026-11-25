@@ -1,6 +1,6 @@
 # Cloud Dev Container
 
-A single, self-contained `.devcontainer` folder for cloud development. Copy it into any project root and GitHub Codespaces or VS Code builds a custom Ubuntu 24.04 image with a ready-to-use toolchain — no other files from this repository are needed.
+A single, self-contained `.devcontainer` folder for cloud development. Copy it into any project root and GitHub Codespaces or VS Code builds a custom Ubuntu 24.04 image with Node.js, OpenJDK, Gradle, the Android SDK, and OpenCode already installed — no other files from this repository are needed.
 
 ## Use it in a project
 
@@ -13,7 +13,7 @@ The folder must land at the project root as `.devcontainer/` (containing `devcon
 - open the project in VS Code and choose **Dev Containers: Reopen in Container**, or
 - push it and create a Codespace from the repository.
 
-The first creation builds the custom image and can take several minutes. Later starts reuse it.
+The first creation builds the custom image and downloads the Android SDK, so it can take noticeably longer than a plain Node.js container. Later starts reuse it. Pick the 4-core / 16 GB / 32 GB machine type for Android builds.
 
 ## What is in the folder
 
@@ -21,11 +21,14 @@ The first creation builds the custom image and can take several minutes. Later s
 .devcontainer/
 ├── devcontainer.json       # build settings, ports, extensions, user
 ├── Dockerfile              # builds the custom image
-├── post-create.sh          # runs the profile installers
+├── post-create.sh          # runs the "all" profile installers
 ├── common.sh               # shared helpers
 ├── versions.env            # pinned tool versions
 ├── install-common-tools.sh
 ├── install-node.sh
+├── install-java.sh
+├── install-gradle.sh
+├── install-android-sdk.sh
 └── install-opencode.sh
 ```
 
@@ -35,7 +38,7 @@ The first creation builds the custom image and can take several minutes. Later s
 "build": { "dockerfile": "Dockerfile", "context": "." }
 ```
 
-The Dockerfile copies the installers into the image and runs the `general-linux` profile at build time. The scripts in this folder are the canonical copies; there is no separate `scripts/` directory.
+The Dockerfile copies the installers into the image and runs the `all` profile at build time. The scripts in this folder are the canonical copies; there is no separate `scripts/` directory.
 
 ## Installed tools
 
@@ -43,16 +46,24 @@ The Dockerfile copies the installers into the image and runs the `general-linux`
 | --- | --- |
 | Dev Container base | `mcr.microsoft.com/devcontainers/base:ubuntu-24.04` |
 | Node.js | `26.13.0` |
+| OpenJDK | `21` |
+| Gradle | `9.6.0` |
+| Android command-line tools | `15859902` |
+| Android platform | `android-37.0` |
+| Android build-tools | `36.0.0` |
 | OpenCode | `2.2.6` |
 | Common CLI tools | Git, ripgrep, fd, jq, Python 3, ShellCheck, tmux, tree, vim, and more |
 
-The `vscode` user (UID/GID 1000) has passwordless `sudo`. Ports `3000`, `8000`, and `8080` are forwarded.
+`JAVA_HOME` is `/opt/java/openjdk` and `ANDROID_HOME`/`ANDROID_SDK_ROOT` are `/home/vscode/android-sdk`. The `vscode` user (UID/GID 1000) has passwordless `sudo`. Ports `3000`, `8000`, `8080`, `5037`, and `5555` are forwarded. Android Studio and a graphical emulator are not included; this is a command-line build environment.
 
 ## Verify the environment
 
 ```bash
 node --version
-jq --version
+java -version
+gradle --version
+sdkmanager --version
+adb version
 opencode --version
 ```
 
@@ -68,7 +79,7 @@ Use `/connect` to authenticate a provider and `/models` to select a model. Insta
 
 ## Customize
 
-- Add tools: edit the `RUN` instruction in `Dockerfile` or add an installer to the folder.
+- Add or remove tools: edit the installer list in `post-create.sh`, then rebuild the image.
 - Change versions: edit `.devcontainer/versions.env`, then rebuild the container/image.
 - Change ports or editor setup: edit `.devcontainer/devcontainer.json`.
 - The configuration requests at least 4 CPUs, 16 GB of RAM, and 32 GB of storage via `hostRequirements`, so Codespaces selects the 4-core / 16 GB / 32 GB machine type rather than the smaller 2-core / 8 GB / 32 GB option.
