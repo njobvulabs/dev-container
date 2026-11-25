@@ -25,6 +25,7 @@ packages=(
   htop
   jq
   nano
+  neofetch
   openssh-client
   python3
   python3-venv
@@ -50,5 +51,19 @@ if have fdfind && ! have fd; then
   fi
 fi
 
-require_cmd git rg jq python3 fd
-ok "Common command-line tools are installed."
+require_cmd git rg jq python3 fd neofetch
+
+# Show the system summary automatically in interactive shells. The guard keeps
+# non-interactive shells (scripts, tasks, scp) free of extra output.
+neofetch_line='if [[ $- == *i* ]] && command -v neofetch >/dev/null 2>&1; then neofetch || true; fi'
+bashrc_files=("$HOME/.bashrc")
+target_home=$(dev_user_home)
+if [[ -n "$target_home" && "$target_home" != "$HOME" ]]; then
+  bashrc_files+=("$target_home/.bashrc")
+fi
+for bashrc in "${bashrc_files[@]}"; do
+  add_path_line "$bashrc" "$neofetch_line"
+  ensure_dev_ownership "$bashrc"
+done
+
+ok "Common command-line tools are installed; neofetch runs on interactive shell start."

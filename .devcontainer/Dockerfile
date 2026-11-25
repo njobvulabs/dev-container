@@ -24,6 +24,7 @@ RUN bash /tmp/cloud-dev-setup/post-create.sh all \
  && sdkmanager --version \
  && adb version \
  && jq --version \
+ && neofetch --stdout >/dev/null \
  && opencode --version \
  && chown -R vscode:vscode /home/vscode/.gradle /home/vscode/.opencode /home/vscode/android-sdk \
  && rm -rf /tmp/cloud-dev-setup \

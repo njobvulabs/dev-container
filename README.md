@@ -52,7 +52,7 @@ The Dockerfile copies the installers into the image and runs the `all` profile a
 | Android platform | `android-37.0` |
 | Android build-tools | `36.0.0` |
 | OpenCode | `2.2.6` |
-| Common CLI tools | Git, ripgrep, fd, jq, Python 3, ShellCheck, tmux, tree, vim, and more |
+| Common CLI tools | Git, ripgrep, fd, jq, Python 3, ShellCheck, tmux, tree, vim, neofetch, and more |
 
 `JAVA_HOME` is `/opt/java/openjdk` and `ANDROID_HOME`/`ANDROID_SDK_ROOT` are `/home/vscode/android-sdk`. The `vscode` user (UID/GID 1000) has passwordless `sudo`. Ports `3000`, `8000`, `8080`, `5037`, and `5555` are forwarded. Android Studio and a graphical emulator are not included; this is a command-line build environment.
 
@@ -74,6 +74,8 @@ sudo chown -R vscode:vscode /home/vscode/.gradle
 ```
 
 Rebuilding the image also fixes it: the Dockerfile hands Gradle, Android SDK, and OpenCode state back to `vscode` after its build-time version checks.
+
+`neofetch` runs automatically when an interactive bash shell starts. To turn it off, remove the `neofetch` line at the end of `~/.bashrc`.
 
 ## OpenCode
 
