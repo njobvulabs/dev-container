@@ -67,6 +67,14 @@ adb version
 opencode --version
 ```
 
+If `gradle --version` fails with `Permission denied` on a `libnative-platform.so.lock` file, the Gradle cache was created by root during an older image build. Repair the current container with:
+
+```bash
+sudo chown -R vscode:vscode /home/vscode/.gradle
+```
+
+Rebuilding the image also fixes it: the Dockerfile hands Gradle, Android SDK, and OpenCode state back to `vscode` after its build-time version checks.
+
 ## OpenCode
 
 OpenCode is installed at `/home/vscode/.opencode/bin/opencode`. Start it with:

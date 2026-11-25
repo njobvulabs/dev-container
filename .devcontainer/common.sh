@@ -77,6 +77,25 @@ dev_user_home() {
   fi
 }
 
+# Installers run as root while the image is built, but the caches they create
+# in the dev user's home must stay writable when the container starts. Only
+# touch paths inside that home so a root-run installer cannot reassign, for
+# example, a system-wide Gradle home it was pointed at explicitly.
+ensure_dev_ownership() {
+  local path=$1
+  is_root || return 0
+
+  local user=${DEV_USER:-vscode}
+  id "$user" >/dev/null 2>&1 || return 0
+  [[ -e "$path" ]] || return 0
+
+  local home
+  home=$(dev_user_home) || return 0
+  [[ "$path" == "$home" || "$path" == "$home/"* ]] || return 0
+
+  chown -R "$user:$(id -gn "$user")" "$path"
+}
+
 run_root() {
   if is_root; then
     "$@"

@@ -14,6 +14,9 @@ ENV JAVA_HOME=/opt/java/openjdk \
 ENV PATH="/opt/java/openjdk/bin:/home/vscode/.local/bin:/home/vscode/.opencode/bin:/home/vscode/android-sdk/cmdline-tools/latest/bin:/home/vscode/android-sdk/platform-tools:/home/vscode/android-sdk/emulator:${PATH}"
 
 # Change the installer list in post-create.sh to bake different tools into the image.
+# The build runs as root, so the final chown hands runtime caches (Gradle native
+# libraries, Android SDK state, OpenCode) back to the vscode user. Without it,
+# `gradle --version` fails at runtime with a Permission denied lock file.
 RUN bash /tmp/cloud-dev-setup/post-create.sh all \
  && node --version \
  && java -version \
@@ -22,5 +25,6 @@ RUN bash /tmp/cloud-dev-setup/post-create.sh all \
  && adb version \
  && jq --version \
  && opencode --version \
+ && chown -R vscode:vscode /home/vscode/.gradle /home/vscode/.opencode /home/vscode/android-sdk \
  && rm -rf /tmp/cloud-dev-setup \
  && rm -rf /var/lib/apt/lists/*

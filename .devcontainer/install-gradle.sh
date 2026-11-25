@@ -25,8 +25,33 @@ done
 ensure_packages ca-certificates curl unzip
 require_cmd curl sha256sum unzip
 
+# `gradle --version` extracts native libraries and creates lock files under
+# GRADLE_USER_HOME. In the image build this script is root while that home
+# belongs to the dev user, so probe a throwaway home instead of leaving
+# root-owned files the dev user cannot write to later.
+temporary_dir=""
+probe_home=""
+if is_root; then
+  probe_home=$(mktemp -d)
+fi
+trap 'cleanup_dir "$temporary_dir"; cleanup_dir "$probe_home"' EXIT
+
+# Repair any root-owned Gradle cache left by an earlier image build so the dev
+# user can create the native-library lock files at runtime.
+ensure_dev_ownership "${GRADLE_USER_HOME:-$HOME/.gradle}"
+
+gradle_installed_version() {
+  local output
+  if [[ -n "$probe_home" ]]; then
+    output=$(GRADLE_USER_HOME="$probe_home" gradle --version 2>/dev/null || true)
+  else
+    output=$(gradle --version 2>/dev/null || true)
+  fi
+  printf '%s\n' "$output" | sed -n 's/^Gradle //p' | head -n 1
+}
+
 if have gradle; then
-  installed_version=$(gradle --version 2>/dev/null | sed -n 's/^Gradle //p' | head -n 1)
+  installed_version=$(gradle_installed_version)
   if [[ "$installed_version" == "$GRADLE_VERSION" && "$FORCE" != "true" ]]; then
     ok "Gradle $GRADLE_VERSION is already installed."
     exit 0
@@ -35,7 +60,6 @@ if have gradle; then
 fi
 
 temporary_dir=$(mktemp -d)
-trap 'cleanup_dir "$temporary_dir"' EXIT
 
 archive="gradle-${GRADLE_VERSION}-bin.zip"
 log "Downloading Gradle $GRADLE_VERSION."
@@ -69,7 +93,7 @@ else
 fi
 
 hash -r 2>/dev/null || true
-installed_version=$(gradle --version 2>/dev/null | sed -n 's/^Gradle //p' | head -n 1)
+installed_version=$(gradle_installed_version)
 [[ "$installed_version" == "$GRADLE_VERSION" ]] || \
   die "Gradle installation verification failed: expected $GRADLE_VERSION, got ${installed_version:-none}"
 ok "Gradle $GRADLE_VERSION installed at $run_dir."
